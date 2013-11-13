@@ -1,0 +1,113 @@
+<?php
+// $Id$
+/**
+ * @file
+ * Module for setting permission values through admin form.
+ * This module provides an admin page /admin/southland-general for setting varying permissions on site.
+ *
+ * @author Evan Willhite, drupal.org uid: emwillhite
+ * @date 08/15/2012
+ *
+ * Special thanks to Centresource.
+ */
+
+
+/**
+ * Implementation of hook_menu
+ */
+ function states_menu () {
+  $items = array();
+
+  $items['admin/states'] = array(
+    'title' => 'States',
+    'description' => 'States UI',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('states_form'),
+    'access arguments' => array('administer states'),
+  );
+
+  return $items;
+ }
+
+/**
+ * Implementation of hook_permission
+ */
+function states_permission() {
+  return array(
+    'administer states' => array(
+      'title' => t('Administer States'),
+      'description' => t('Toggle the state(s) through the UI'),
+    ),
+  );
+}
+
+/**
+ * Implementation of Forms API - gathers link text and url
+ */
+ function states_form () {
+  $form = array();
+
+  $form['states'] = array(
+    '#type' => 'checkbox',
+    '#description' => t(''),
+    '#default_value' => variable_get('states', 0),
+    '#title' => t('State'),
+  );
+
+  $form['#submit'][] = 'states_submit';
+
+  return system_settings_form($form);
+ }
+
+function states_submit($form, &$form_state) {
+// I guess this has to be here because it doesn't work without it. :/
+}
+
+/**
+ *
+ *
+ * SOLD OUT CONTEXT (see API.txt in context module for more info)
+ *
+ */
+
+/**
+ * Implements hook_context_plugins().
+ *
+ */
+function states_context_plugins() {
+  $plugins = array();
+  $plugins['states_context_condition_state'] = array(
+    'handler' => array(
+      'path' => drupal_get_path('module', 'states'),
+      'file' => 'states_context_condition_state.inc',
+      'class' => 'states_context_condition_state',
+      'parent' => 'context_condition',
+    ),
+  );
+  return $plugins;
+}
+
+/**
+ * Implements hook_context_registry().
+ *
+ */
+function states_context_registry() {
+  return array(
+    'conditions' => array(
+      'state' => array(
+        'title' => t('States'),
+        'description' => t('Define a state or states'),
+        'plugin' => 'states_context_condition_state',
+      ),
+    ),
+  );
+}
+/**
+ * Implements hook_init().
+ *
+ */
+function states_init() {
+  if ($plugin = context_get_plugin('condition', 'state')) {
+    $plugin->execute(1);
+  }
+}

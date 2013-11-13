@@ -1,0 +1,4 @@
+name = "States"
+description = "Define states that can be used in context"
+dependencies[] = "context"
+core = "7.x"

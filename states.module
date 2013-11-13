@@ -18,12 +18,20 @@
  function states_menu () {
   $items = array();
 
-  $items['admin/states'] = array(
+  $items['admin/structure/states'] = array(
     'title' => 'States',
     'description' => 'States UI',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('states_form'),
     'access arguments' => array('administer states'),
+  );
+
+  $items['admin/structure/states/define'] = array(
+    'title' => 'Define States',
+    'description' => 'Define States as an Administrator',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('define_states_form'),
+    'access arguments' => array('define states'),
   );
 
   return $items;
@@ -34,6 +42,10 @@
  */
 function states_permission() {
   return array(
+    'define states' => array(
+      'title' => t('Define States'),
+      'description' => t('Define States as an Administrator'),
+    ),
     'administer states' => array(
       'title' => t('Administer States'),
       'description' => t('Toggle the state(s) through the UI'),
@@ -42,31 +54,65 @@ function states_permission() {
 }
 
 /**
- * Implementation of Forms API - gathers link text and url
+ * Implementation of Forms API
  */
- function states_form () {
+function define_states_form () {
   $form = array();
 
-  $form['states'] = array(
-    '#type' => 'checkbox',
-    '#description' => t(''),
-    '#default_value' => variable_get('states', 0),
-    '#title' => t('State'),
+  $form['defined_states'] = array(
+    '#type' => 'textarea',
+    '#description' => t('Define the available states, one per line.'),
+    '#default_value' => variable_get('defined_states', ''),
+    '#title' => t('Defined States'),
   );
 
-  $form['#submit'][] = 'states_submit';
+  $form['#submit'][] = 'define_states_submit';
 
   return system_settings_form($form);
- }
+}
+
+function define_states_submit($form, &$form_state) {
+  variable_set('defined_states', $form_state['values']['defined_states']);
+}
+
+function states_form () {
+  $states = explode("\n", variable_get('defined_states', ''));
+  if (!$states == '') {
+    $form = array();
+
+    $form['states'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Apply the following state(s):'),
+    );
+    foreach ($states as $key => &$value) {
+      $form['states']['states_' . $key . ''] = array(
+        '#type' => 'checkbox',
+        '#default_value' => variable_get('state_' . $key),
+        '#title' => t($value),
+      );
+    }
+
+    $form['#submit'][] = 'states_submit';
+
+    return system_settings_form($form);
+  }
+  else {
+    drupal_set_message('No states have been added.' );
+  }
+}
 
 function states_submit($form, &$form_state) {
-// I guess this has to be here because it doesn't work without it. :/
+  $i = 0;
+  while(isset($form_state['values']['states_' . $i])) {
+    variable_set('state_' . $i, $form_state['values']['states_' . $i]);
+    $i++;
+  }
 }
 
 /**
  *
  *
- * SOLD OUT CONTEXT (see API.txt in context module for more info)
+ * STATES CONTEXT (see API.txt in context module for more info)
  *
  */
 
@@ -79,8 +125,8 @@ function states_context_plugins() {
   $plugins['states_context_condition_state'] = array(
     'handler' => array(
       'path' => drupal_get_path('module', 'states'),
-      'file' => 'states_context_condition_state.inc',
-      'class' => 'states_context_condition_state',
+      'file' => 'states_context_condition_states.inc',
+      'class' => 'states_context_condition_states',
       'parent' => 'context_condition',
     ),
   );
@@ -94,7 +140,7 @@ function states_context_plugins() {
 function states_context_registry() {
   return array(
     'conditions' => array(
-      'state' => array(
+      'states' => array(
         'title' => t('States'),
         'description' => t('Define a state or states'),
         'plugin' => 'states_context_condition_state',
@@ -107,7 +153,7 @@ function states_context_registry() {
  *
  */
 function states_init() {
-  if ($plugin = context_get_plugin('condition', 'state')) {
+  if ($plugin = context_get_plugin('condition', 'states')) {
     $plugin->execute(1);
   }
 }

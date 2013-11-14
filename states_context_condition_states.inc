@@ -13,13 +13,14 @@ class states_context_condition_states extends context_condition {
     }
     return $values;
   }
+
   // Executes value if event has "State"
   function execute() {
     $states = preg_split('/[\r\n]+/', variable_get('defined_states', ''), -1, PREG_SPLIT_NO_EMPTY);
-    foreach ($this->get_contexts() as $context) {
-      dsm($context);
-      foreach ($states as $key => &$value) {
-        $state = variable_get('states_' . $key);
+    foreach ($states as $key => &$value) {
+      $state_var = strtolower(str_replace(" ","_",$value));
+      $state = variable_get('states_' . $key);
+      foreach ($this->get_contexts($state_var) as $context) {
         if ($state == 1) {
           $this->condition_met($context, $value);
         }

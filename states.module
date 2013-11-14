@@ -5,7 +5,7 @@
  * Module for defining general states for usage in context
  * This module provides an admin page /admin/structure/states/define for administrators to add states and a separate admin page /admin/structure/states for editors to select the current state of the site.
  *
- * @author Evan Willhite, drupal.org uid: emwillhite
+ * @author Evan Willhite, drupal.org uid: evanmwillhite
  * @date 11/14/2013
  *
  * Special thanks to Centresource and Micah Redding for assistance - drupal.org uid: micahredding
@@ -23,7 +23,7 @@
     'description' => 'States UI',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('states_form'),
-    'access arguments' => array('administer states'),
+    'access arguments' => array('edit states'),
   );
 
   $items['admin/structure/states/define'] = array(
@@ -46,8 +46,8 @@ function states_permission() {
       'title' => t('Define States'),
       'description' => t('Define States as an Administrator'),
     ),
-    'administer states' => array(
-      'title' => t('Administer States'),
+    'edit states' => array(
+      'title' => t('Edit States'),
       'description' => t('Toggle the state(s) through the UI'),
     ),
   );

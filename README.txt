@@ -39,9 +39,6 @@ content and show event info content based on the Sold Out state.
 1. Add the "Sold Out" state in admin/structure/states/define (you can define
    multiple states as well).
 2. In your context, select the "States" condition and the "Sold Out" state.
-   Set your reactions accordingly, e.g. 1. use "Blocks" to show content based on
-   the state, 2. use "Regions" to hide regions based on the state, etc.
+   Set your reactions accordingly, e.g. 1. use "Blocks" to show content based on the state, 2. use "Regions" to hide regions based on the state, etc.
 3. Users with the "Edit States" permission can toggle the available states at
    any time at admin/structure/states.
-
-

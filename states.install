@@ -12,6 +12,9 @@ function states_install() {
  * Implementation of hook_uninstall().
  */
 function states_uninstall() {
-  variable_del('state');
-  variable_del('defined_state');
+  $states = explode("\n", variable_get('defined_states', ''));
+  foreach ($states as $key => &$value) {
+    variable_del('states_' . $key);
+  }
+  variable_del('defined_states');
 }
